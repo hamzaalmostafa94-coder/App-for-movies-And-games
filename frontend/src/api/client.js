@@ -1,7 +1,10 @@
 import axios from 'axios';
 
+// هنا السحر: سيأخذ الرابط من Netlify، وإذا لم يجده سيستخدم المحلي
+const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+
 const apiClient = axios.create({
-    baseURL: 'http://localhost:8000/api', 
+    baseURL: `${apiUrl}/api`, 
     headers: {
         'Content-Type': 'application/json'
     }
