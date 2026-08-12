@@ -1,3 +1,4 @@
+import os
 from fastapi import FastAPI, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import create_engine, Column, Integer, String, DateTime
@@ -7,10 +8,19 @@ from pydantic import BaseModel
 from typing import List, Optional
 from datetime import datetime
 
-# 1. إعداد قاعدة بيانات SQLite (ستقوم بإنشاء ملف محلي اسمه requests.db)
-SQLALCHEMY_DATABASE_URL = "sqlite:///./requests.db"
+# 1. إعداد قاعدة البيانات (ديناميكي: سحابي على Render أو محلي على جهازك)
+SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./requests.db")
 
-engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False})
+# تعديل الرابط ليتوافق مع الإصدارات الحديثة من PostgreSQL
+if SQLALCHEMY_DATABASE_URL.startswith("postgres://"):
+    SQLALCHEMY_DATABASE_URL = SQLALCHEMY_DATABASE_URL.replace("postgres://", "postgresql://", 1)
+
+# إنشاء محرك الاتصال بناءً على نوع قاعدة البيانات
+if SQLALCHEMY_DATABASE_URL.startswith("sqlite"):
+    engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False})
+else:
+    engine = create_engine(SQLALCHEMY_DATABASE_URL)
+
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
@@ -59,7 +69,8 @@ class RequestResponse(RequestCreate):
     created_at: datetime
 
     class Config:
-        orm_mode = True
+        # تم استبدال orm_mode بـ from_attributes لتتوافق مع Pydantic v2 وتمنع التحذيرات
+        from_attributes = True
 
 def get_db():
     db = SessionLocal()
@@ -71,7 +82,10 @@ def get_db():
 # 5. الروابط (Endpoints)
 @app.post("/api/requests/", response_model=RequestResponse)
 def create_request(request: RequestCreate, db: Session = Depends(get_db)):
-    db_request = DBRequest(**request.dict())
+    # استخدمنا model_dump() لأنها الصيغة الأحدث في بايثون بدلاً من dict()
+    request_data = request.model_dump() if hasattr(request, 'model_dump') else request.dict()
+    db_request = DBRequest(**request_data)
+    
     db.add(db_request)
     db.commit()
     db.refresh(db_request)
