@@ -1,16 +1,40 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react'; // أضفنا useEffect هنا
 import './AdminDashboard.css';
+import { requestService } from '../api/client'; // أضفنا استدعاء ملف الاتصال (تأكد من أن المسار صحيح حسب مجلداتك)
 
 const AdminDashboard = () => {
     const [activeMenu, setActiveMenu] = useState('dashboard');
     const [statusFilter, setStatusFilter] = useState('all');
-
-    // جعلنا القائمة تبدأ فارغة لتستقبل الطلبات الحقيقية فقط
     const [requests, setRequests] = useState([]);
 
-    const handleUpdateStatus = (id, newStatus) => {
-        setRequests(requests.map(req => req.id === id ? { ...req, status: newStatus } : req));
+    // === التعديل الجوهري الأول: جلب الطلبات من السيرفر فور فتح الصفحة ===
+    useEffect(() => {
+        const fetchRequests = async () => {
+            try {
+                const data = await requestService.getAllRequests();
+                // عكسنا المصفوفة ليظهر الطلب الأحدث في الأعلى
+                setRequests(data.reverse()); 
+            } catch (error) {
+                console.error("حدث خطأ أثناء جلب الطلبات:", error);
+            }
+        };
+        fetchRequests();
+    }, []); // مصفوفة فارغة تعني جلب البيانات مرة واحدة عند تحميل الصفحة
+    // ==========================================================
+
+    // === التعديل الجوهري الثاني: حفظ الحالة الجديدة في السيرفر ===
+    const handleUpdateStatus = async (id, newStatus) => {
+        try {
+            // 1. نرسل التحديث لقاعدة البيانات أولاً
+            await requestService.updateRequestStatus(id, newStatus);
+            // 2. إذا نجح الحفظ، نقوم بتحديث الشاشة أمامك
+            setRequests(requests.map(req => req.id === id ? { ...req, status: newStatus } : req));
+        } catch (error) {
+            console.error("حدث خطأ أثناء تحديث حالة الطلب:", error);
+            alert("حدث خطأ في الاتصال، لم يتم تحديث الحالة.");
+        }
     };
+    // ==========================================================
 
     const handleWhatsAppClick = (request) => {
         let statusArabic = '';
