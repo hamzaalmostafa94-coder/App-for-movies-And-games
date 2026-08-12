@@ -51,7 +51,14 @@ const AdminDashboard = () => {
                         `حالة الطلب الحالية: *${statusArabic}* 🚀`;
 
         const encodedMessage = encodeURIComponent(message);
-        const phone = request.customer_phone.replace(/\D/g, ''); 
+        let phone = request.customer_phone.replace(/\D/g, ''); 
+
+ // تحويل الرقم المحلي إلى صيغة دولية يقبلها واتساب
+    if (phone.startsWith('0')) {
+    phone = '963' + phone.substring(1);
+    } else if (!phone.startsWith('963')) {
+    phone = '963' + phone;
+}
         window.open(`https://wa.me/${phone}?text=${encodedMessage}`, '_blank');
     };
 
