@@ -1,0 +1,80 @@
+:root {
+    --bg-color: #050509;
+    --panel-bg: rgba(20, 20, 30, 0.7);
+    --primary-accent: #00F2FE;
+    --secondary-accent: #FE019A;
+    --success-color: #10B981;
+    --warning-color: #F59E0B;
+    --text-main: #FFFFFF;
+    --text-muted: #A0AEC0;
+    --border-color: rgba(255, 255, 255, 0.08);
+    --sidebar-width: 260px;
+}
+
+.admin-container { display: flex; min-height: 100vh; background-image: radial-gradient(circle at 50% 0%, rgba(0, 242, 254, 0.05), transparent 40%); }
+
+.sidebar { width: var(--sidebar-width); background: rgba(10, 10, 15, 0.8); backdrop-filter: blur(20px); border-left: 1px solid var(--border-color); padding: 2rem 1rem; display: flex; flex-direction: column; position: fixed; height: 100vh; right: 0; top: 0; z-index: 100; }
+.brand { font-size: 1.5rem; font-weight: 900; text-align: center; margin-bottom: 3rem; background: linear-gradient(135deg, var(--primary-accent), var(--secondary-accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.nav-menu { list-style: none; display: flex; flex-direction: column; gap: 0.5rem; padding: 0; }
+.nav-item { padding: 12px 20px; border-radius: 12px; color: var(--text-muted); cursor: pointer; transition: all 0.3s; display: flex; align-items: center; gap: 12px; font-weight: 500; }
+.nav-item:hover, .nav-item.active { background: rgba(255, 255, 255, 0.05); color: var(--text-main); }
+.nav-item.active { border-right: 4px solid var(--primary-accent); background: linear-gradient(90deg, transparent, rgba(0, 242, 254, 0.1)); }
+
+.main-content { flex: 1; margin-right: var(--sidebar-width); padding: 2rem 3rem; }
+.dashboard-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2.5rem; }
+.dashboard-header h1 { font-size: 1.8rem; font-weight: 700; margin-bottom: 5px; }
+
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem; margin-bottom: 3rem; }
+.stat-card { background: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 16px; padding: 1.5rem; display: flex; align-items: center; gap: 1rem; box-shadow: 0 4px 20px rgba(0,0,0,0.2); }
+.stat-icon { width: 50px; height: 50px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; flex-shrink: 0; }
+.icon-blue { background: rgba(0, 242, 254, 0.1); color: var(--primary-accent); }
+.icon-pink { background: rgba(254, 1, 154, 0.1); color: var(--secondary-accent); }
+.icon-green { background: rgba(16, 185, 129, 0.1); color: var(--success-color); }
+.icon-orange { background: rgba(245, 158, 11, 0.1); color: var(--warning-color); }
+.stat-info h3 { font-size: 1.8rem; margin-bottom: 0.2rem; margin-top: 0; }
+.stat-info p { color: var(--text-muted); font-size: 0.85rem; margin: 0; }
+
+.table-container { background: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 16px; padding: 1.5rem; backdrop-filter: blur(10px); overflow-x: auto; /* السماح بالتمرير الأفقي للجداول الطويلة */ }
+.table-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 10px; }
+.table-header h2 { margin: 0; }
+.filter-select { background: rgba(0, 0, 0, 0.4); border: 1px solid var(--border-color); color: var(--text-main); padding: 8px 16px; border-radius: 8px; outline: none; cursor: pointer; font-family: inherit; font-size: 0.9rem; }
+
+table { width: 100%; border-collapse: collapse; text-align: right; min-width: 700px; /* ضمان عدم ضغط الجدول جداً */ }
+th { padding: 1rem; color: var(--text-muted); font-weight: 500; border-bottom: 1px solid var(--border-color); white-space: nowrap; }
+td { padding: 1.2rem 1rem; border-bottom: 1px solid rgba(255,255,255,0.03); vertical-align: middle; }
+
+/* السحر هنا: منع التفاف الكلمات في الشارات (إصلاح الخلل في الصورة) */
+.badge { padding: 6px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 700; display: inline-block; white-space: nowrap; }
+.badge-pending { background: rgba(245, 158, 11, 0.15); color: var(--warning-color); border: 1px solid rgba(245, 158, 11, 0.3); }
+.badge-downloading { background: rgba(0, 242, 254, 0.15); color: var(--primary-accent); border: 1px solid rgba(0, 242, 254, 0.3); }
+.badge-ready { background: rgba(16, 185, 129, 0.15); color: var(--success-color); border: 1px solid rgba(16, 185, 129, 0.3); }
+
+.action-btn { background: transparent; border: 1px solid var(--border-color); color: var(--text-main); padding: 8px 12px; border-radius: 8px; cursor: pointer; transition: all 0.2s; }
+.action-btn:hover { background: rgba(255,255,255,0.1); }
+.btn-ready:hover { background: var(--success-color); border-color: var(--success-color); }
+
+/* =========================================
+   استعلامات الموبايل (سحر التصميم المتجاوب) 
+   ========================================= */
+@media (max-width: 900px) {
+    /* تحويل القائمة الجانبية إلى شريط سفلي (Bottom Navigation) في الموبايل */
+    .admin-container { flex-direction: column; }
+    .sidebar { width: 100%; height: 70px; position: fixed; bottom: 0; right: 0; top: auto; flex-direction: row; padding: 0.5rem; justify-content: space-around; background: rgba(10, 10, 15, 0.95); border-left: none; border-top: 1px solid var(--border-color); }
+    .brand { display: none; /* إخفاء الشعار في الموبايل */ }
+    .nav-menu { flex-direction: row; width: 100%; justify-content: space-around; }
+    .nav-item { padding: 10px; flex-direction: column; gap: 4px; font-size: 0.7rem; justify-content: center; border-radius: 12px; }
+    .nav-item i { font-size: 1.2rem; margin: 0; }
+    .nav-item.active { border-right: none; border-bottom: none; background: rgba(0, 242, 254, 0.1); color: var(--primary-accent); }
+    
+    .main-content { margin-right: 0; margin-bottom: 70px; /* مساحة للشريط السفلي */ padding: 1.5rem 1rem; }
+    
+    .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 1rem; margin-bottom: 2rem; }
+    .stat-card { padding: 1rem; flex-direction: column; text-align: center; }
+    
+    .dashboard-header h1 { font-size: 1.4rem; }
+    .table-container { padding: 1rem; }
+}
+
+@media (max-width: 480px) {
+    .stats-grid { grid-template-columns: 1fr; } /* بطاقة واحدة في السطر للشاشات الصغيرة جداً */
+}
