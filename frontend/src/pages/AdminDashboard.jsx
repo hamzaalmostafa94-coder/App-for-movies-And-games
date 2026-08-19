@@ -36,7 +36,6 @@ const AdminDashboard = () => {
         else if (request.status === 'ready') statusArabic = 'جاهز للاستلام';
         else if (request.status === 'archived') statusArabic = 'مؤرشف (مكتمل)';
 
-        // تجهيز النصوص الإضافية (تظهر فقط إذا كان العميل قد أدخلها)
         const partText = request.part_number ? `الجزء/الموسم: ${request.part_number}\n` : '';
 
         const message = `مرحباً ${request.customer_name}،\n\n` +
@@ -44,8 +43,7 @@ const AdminDashboard = () => {
                         `نوع الطلب: ${request.content_type}\n` +
                         `اسم المحتوى: ${request.content_name}\n` +
                         partText +
-                        `التفاصيل: ${request.details || 'لا يوجد'}\n` +
-                        imageText + `\n` +
+                        `التفاصيل: ${request.details || 'لا يوجد'}\n\n` +
                         `حالة الطلب الحالية: *${statusArabic}* 🚀`;
 
         const encodedMessage = encodeURIComponent(message);
@@ -109,7 +107,6 @@ const AdminDashboard = () => {
                 </div>
 
                 <div className="stats-grid">
-                    {/* ... (العدادات بقيت كما هي دون تغيير لتقليل طول الكود المعروض هنا) ... */}
                     <div className="stat-card">
                         <div className="stat-icon icon-blue"><i className="fa-solid fa-inbox"></i></div>
                         <div className="stat-info">
@@ -166,7 +163,7 @@ const AdminDashboard = () => {
                                 <th>العميل</th>
                                 <th>النوع</th>
                                 <th>اسم المحتوى</th>
-                                <th>الموسم/الجزء</th> {/* تمت إضافة العامود */}
+                                <th>الموسم/الجزء</th>
                                 <th>التفاصيل</th>
                                 <th>الحالة</th>
                                 <th>الإجراءات</th>
@@ -185,15 +182,8 @@ const AdminDashboard = () => {
                                             }
                                         </td>
                                         <td style={{ fontWeight: '700' }}>{request.content_name}</td>
-                                        
-                                        {/* عرض رقم الجزء/الموسم */}
-                                        <td style={{ color: 'var(--text-muted)' }}>
-                                            {request.part_number ? request.part_number : '-'}
-                                        </td>
-                                        
+                                        <td style={{ color: 'var(--text-muted)' }}>{request.part_number ? request.part_number : '-'}</td>
                                         <td style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>{request.details}</td>
-                                        
-
                                         <td>
                                             {request.status === 'pending' && <span className="badge badge-pending">جاري معالجة طلبك</span>}
                                             {request.status === 'downloading' && <span className="badge badge-downloading">جاري التنزيل...</span>}
@@ -223,7 +213,7 @@ const AdminDashboard = () => {
                                 ))
                             ) : (
                                 <tr>
-                                    <td colSpan="9" style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-muted)' }}>
+                                    <td colSpan="8" style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-muted)' }}>
                                         <i className="fa-solid fa-inbox" style={{ fontSize: '2.5rem', marginBottom: '10px', display: 'block', opacity: 0.4 }}></i>
                                         لا توجد طلبات جديدة حالياً. النظام جاهز لاستقبال الطلبات!
                                     </td>
