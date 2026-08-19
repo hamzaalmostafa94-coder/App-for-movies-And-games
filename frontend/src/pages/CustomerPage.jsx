@@ -23,17 +23,6 @@ const CustomerPage = () => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
-    // دالة خاصة لمعالجة الملف المرفوع من اللابتوب وتحويله لبيانات نصية (Base64)
-    const handleFileChange = (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setFormData(prev => ({ ...prev, image_url: reader.result }));
-            };
-            reader.readAsDataURL(file);
-        }
-    };
 
     const handleTabSwitch = (tab) => {
         setActiveTab(tab);
@@ -64,7 +53,7 @@ const CustomerPage = () => {
                 part_number: formData.part_number,
             });
             setIsSuccess(true);
-            setFormData(prev => ({ ...prev, content_name: '', details: activeTab === 'movies' ? '1080p (FHD) - جودة عالية' : '', part_number: '', image_url: '' }));
+            setFormData(prev => ({ ...prev, content_name: '', details: activeTab === 'movies' ? '1080p (FHD) - جودة عالية' : '', part_number: '' }));
             setTimeout(() => setIsSuccess(false), 3000);
         } catch (error) {
             alert('حدث خطأ أثناء إرسال الطلب، تأكد من تشغيل الخادم.');
@@ -83,7 +72,7 @@ const CustomerPage = () => {
     const handleDoubleClick = () => {
         if (clickTimer.current) clearTimeout(clickTimer.current);
         const password = prompt("الرجاء إدخال مفتاح الوصول:");
-        if (password === "12345") { 
+        if (password === "#@396/693@#") { 
             navigate('/admin');
         } else if (password !== null && password !== "") {
             alert("كلمة المرور خاطئة!");
