@@ -38,7 +38,6 @@ const AdminDashboard = () => {
 
         // تجهيز النصوص الإضافية (تظهر فقط إذا كان العميل قد أدخلها)
         const partText = request.part_number ? `الجزء/الموسم: ${request.part_number}\n` : '';
-        const imageText = request.image_url ? `رابط الصورة المرفقة: ${request.image_url}\n` : '';
 
         const message = `مرحباً ${request.customer_name}،\n\n` +
                         `بخصوص طلبك رقم: #${request.id}\n` +
@@ -169,7 +168,6 @@ const AdminDashboard = () => {
                                 <th>اسم المحتوى</th>
                                 <th>الموسم/الجزء</th> {/* تمت إضافة العامود */}
                                 <th>التفاصيل</th>
-                                <th>صورة/مرفق</th> {/* تمت إضافة العامود */}
                                 <th>الحالة</th>
                                 <th>الإجراءات</th>
                             </tr>
@@ -195,16 +193,6 @@ const AdminDashboard = () => {
                                         
                                         <td style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>{request.details}</td>
                                         
-                                        {/* عرض رابط الصورة في حال وجوده */}
-                                        <td>
-                                            {request.image_url ? (
-                                                <a href={request.image_url} target="_blank" rel="noopener noreferrer" style={{ color: '#00d2ff', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '5px' }}>
-                                                    <i className="fa-solid fa-image"></i> عرض
-                                                </a>
-                                            ) : (
-                                                <span style={{ color: 'var(--text-muted)' }}>-</span>
-                                            )}
-                                        </td>
 
                                         <td>
                                             {request.status === 'pending' && <span className="badge badge-pending">جاري معالجة طلبك</span>}
