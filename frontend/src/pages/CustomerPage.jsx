@@ -42,14 +42,13 @@ const CustomerPage = () => {
             details: tab === 'movies' ? '1080p (FHD) - جودة عالية' : '',
             part_number: '',
             content_name: '',
-            image_url: '' // تفريغ الصورة عند تبديل التبويب
         }));
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         if(!formData.customer_name || !formData.customer_phone || (!formData.content_name && !formData.image_url)) {
-            alert('يرجى إدخال اسمك ورقمك، مع تحديد اسم المحتوى أو إرفاق صورته على الأقل');
+            alert('يرجى إدخال اسمك ورقمك، مع تحديد اسم المحتوى');
             return;
         }
         setIsLoading(true);
@@ -63,7 +62,6 @@ const CustomerPage = () => {
                 content_name: formData.content_name || 'طلب عبر صورة الجهاز',
                 details: formData.details,
                 part_number: formData.part_number,
-                image_url: formData.image_url
             });
             setIsSuccess(true);
             setFormData(prev => ({ ...prev, content_name: '', details: activeTab === 'movies' ? '1080p (FHD) - جودة عالية' : '', part_number: '', image_url: '' }));
@@ -131,24 +129,6 @@ const CustomerPage = () => {
                         <input type="text" name="content_name" className="input-field" placeholder="اكتب الاسم هنا بدقة" value={formData.content_name} onChange={handleInputChange} />
                     </div>
                     
-                    {/* ميزة إرفاق الصورة من اللابتوب - تظهر حصرياً في قسم الألعاب */}
-                    {activeTab === 'games' && (
-                        <div className="form-group">
-                            <label>إرفاق لقطة شاشة للعبة من جهازك (اختياري)</label>
-                            <input 
-                                type="file" 
-                                accept="image/*" 
-                                onChange={handleFileChange} 
-                                className="input-field" 
-                                style={{ padding: '8px', cursor: 'pointer', lineHeight: 'normal' }}
-                            />
-                            {formData.image_url && (
-                                <p style={{ color: '#10B981', fontSize: '0.85rem', marginTop: '6px', fontWeight: '600' }}>
-                                    تم اختيار وإرفاق الصورة بنجاح ✅
-                                </p>
-                            )}
-                        </div>
-                    )}
 
                     <div className="form-group">
                         <label>{activeTab === 'movies' ? 'الدقة المطلوبة' : 'الإصدار أو سنة الإصدار'}</label>
