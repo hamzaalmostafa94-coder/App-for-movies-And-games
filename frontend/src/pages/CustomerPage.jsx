@@ -17,7 +17,6 @@ const CustomerPage = () => {
         content_name: '',
         details: '1080p (FHD) - جودة عالية',
         part_number: '',
-        image_url: '' // لتخزين الصورة المحولة من اللابتوب
     });
 
     const handleInputChange = (e) => {
