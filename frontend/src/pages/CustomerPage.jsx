@@ -18,14 +18,19 @@ const CustomerPage = () => {
         details: '1080p (FHD) - جودة عالية',
         part_number: '',
     });
-
-    // مراقب المؤقت: ينقص الرقم كل ثانية، وعندما يصل للصفر يقوم بالتوجيه
+ 
+// مراقب المؤقت: ينقص الرقم كل ثانية، وعندما يصل للصفر يقوم بالتوجيه ويغلق نفسه
     useEffect(() => {
         if (redirectCountdown === null) return;
 
         if (redirectCountdown === 0) {
-            // قم بوضع رابط الفيسبوك الخاص بك هنا داخل علامتي التنصيص
-            window.location.href = "https://www.facebook.com/profile.php?id=61593001724205&mibextid=ZbWKwL"; 
+            // 1. افتح صفحة الفيسبوك
+            window.location.href = "https://www.facebook.com/profile.php?id=61593001724205&mibextid=ZbWKwL";
+            
+            // 2. أمر مهم: أعد تعيين الحالة فوراً بعد التوجيه لكي لا تتجمد الصفحة عند العودة
+            setTimeout(() => {
+                setRedirectCountdown(null);
+            }, 500); 
             return;
         }
 
@@ -35,6 +40,7 @@ const CustomerPage = () => {
 
         return () => clearTimeout(timer);
     }, [redirectCountdown]);
+
 
     const handleInputChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
