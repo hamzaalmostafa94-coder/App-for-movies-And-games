@@ -1,40 +1,33 @@
-import React, { useState, useEffect } from 'react'; // أضفنا useEffect هنا
+import React, { useState, useEffect } from 'react';
 import './AdminDashboard.css';
-import { requestService } from '../api/client'; // أضفنا استدعاء ملف الاتصال (تأكد من أن المسار صحيح حسب مجلداتك)
+import { requestService } from '../api/client';
 
 const AdminDashboard = () => {
     const [activeMenu, setActiveMenu] = useState('dashboard');
     const [statusFilter, setStatusFilter] = useState('all');
     const [requests, setRequests] = useState([]);
 
-    // === التعديل الجوهري الأول: جلب الطلبات من السيرفر فور فتح الصفحة ===
     useEffect(() => {
         const fetchRequests = async () => {
             try {
                 const data = await requestService.getAllRequests();
-                // عكسنا المصفوفة ليظهر الطلب الأحدث في الأعلى
                 setRequests(data.reverse()); 
             } catch (error) {
                 console.error("حدث خطأ أثناء جلب الطلبات:", error);
             }
         };
         fetchRequests();
-    }, []); // مصفوفة فارغة تعني جلب البيانات مرة واحدة عند تحميل الصفحة
-    // ==========================================================
+    }, []);
 
-    // === التعديل الجوهري الثاني: حفظ الحالة الجديدة في السيرفر ===
     const handleUpdateStatus = async (id, newStatus) => {
         try {
-            // 1. نرسل التحديث لقاعدة البيانات أولاً
             await requestService.updateRequestStatus(id, newStatus);
-            // 2. إذا نجح الحفظ، نقوم بتحديث الشاشة أمامك
             setRequests(requests.map(req => req.id === id ? { ...req, status: newStatus } : req));
         } catch (error) {
             console.error("حدث خطأ أثناء تحديث حالة الطلب:", error);
             alert("حدث خطأ في الاتصال، لم يتم تحديث الحالة.");
         }
     };
-    // ==========================================================
 
     const handleWhatsAppClick = (request) => {
         let statusArabic = '';
@@ -43,22 +36,27 @@ const AdminDashboard = () => {
         else if (request.status === 'ready') statusArabic = 'جاهز للاستلام';
         else if (request.status === 'archived') statusArabic = 'مؤرشف (مكتمل)';
 
+        // تجهيز النصوص الإضافية (تظهر فقط إذا كان العميل قد أدخلها)
+        const partText = request.part_number ? `الجزء/الموسم: ${request.part_number}\n` : '';
+
         const message = `مرحباً ${request.customer_name}،\n\n` +
                         `بخصوص طلبك رقم: #${request.id}\n` +
                         `نوع الطلب: ${request.content_type}\n` +
                         `اسم المحتوى: ${request.content_name}\n` +
-                        `التفاصيل: ${request.details}\n\n` +
+                        partText +
+                        `التفاصيل: ${request.details || 'لا يوجد'}\n` +
+                        imageText + `\n` +
                         `حالة الطلب الحالية: *${statusArabic}* 🚀`;
 
         const encodedMessage = encodeURIComponent(message);
+        
         let phone = request.customer_phone.replace(/\D/g, ''); 
+        if (phone.startsWith('0')) {
+            phone = '963' + phone.substring(1);
+        } else if (!phone.startsWith('963')) {
+            phone = '963' + phone;
+        }
 
- // تحويل الرقم المحلي إلى صيغة دولية يقبلها واتساب
-    if (phone.startsWith('0')) {
-    phone = '963' + phone.substring(1);
-    } else if (!phone.startsWith('963')) {
-    phone = '963' + phone;
-}
         window.open(`https://wa.me/${phone}?text=${encodedMessage}`, '_blank');
     };
 
@@ -111,6 +109,7 @@ const AdminDashboard = () => {
                 </div>
 
                 <div className="stats-grid">
+                    {/* ... (العدادات بقيت كما هي دون تغيير لتقليل طول الكود المعروض هنا) ... */}
                     <div className="stat-card">
                         <div className="stat-icon icon-blue"><i className="fa-solid fa-inbox"></i></div>
                         <div className="stat-info">
@@ -141,7 +140,7 @@ const AdminDashboard = () => {
                     </div>
                 </div>
 
-                <div className="table-container">
+                <div className="table-container" style={{ overflowX: 'auto' }}>
                     <div className="table-header">
                         <h2>{statusFilter === 'archived' ? 'سجل الأرشيف' : 'القائمة الحالية'}</h2>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -167,6 +166,7 @@ const AdminDashboard = () => {
                                 <th>العميل</th>
                                 <th>النوع</th>
                                 <th>اسم المحتوى</th>
+                                <th>الموسم/الجزء</th> {/* تمت إضافة العامود */}
                                 <th>التفاصيل</th>
                                 <th>الحالة</th>
                                 <th>الإجراءات</th>
@@ -185,7 +185,15 @@ const AdminDashboard = () => {
                                             }
                                         </td>
                                         <td style={{ fontWeight: '700' }}>{request.content_name}</td>
+                                        
+                                        {/* عرض رقم الجزء/الموسم */}
+                                        <td style={{ color: 'var(--text-muted)' }}>
+                                            {request.part_number ? request.part_number : '-'}
+                                        </td>
+                                        
                                         <td style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>{request.details}</td>
+                                        
+
                                         <td>
                                             {request.status === 'pending' && <span className="badge badge-pending">جاري معالجة طلبك</span>}
                                             {request.status === 'downloading' && <span className="badge badge-downloading">جاري التنزيل...</span>}
@@ -215,7 +223,7 @@ const AdminDashboard = () => {
                                 ))
                             ) : (
                                 <tr>
-                                    <td colSpan="7" style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-muted)' }}>
+                                    <td colSpan="9" style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-muted)' }}>
                                         <i className="fa-solid fa-inbox" style={{ fontSize: '2.5rem', marginBottom: '10px', display: 'block', opacity: 0.4 }}></i>
                                         لا توجد طلبات جديدة حالياً. النظام جاهز لاستقبال الطلبات!
                                     </td>
