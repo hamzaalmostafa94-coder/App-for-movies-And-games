@@ -104,7 +104,7 @@ const CustomerPage = () => {
     const handleDoubleClick = () => {
         if (clickTimer.current) clearTimeout(clickTimer.current);
         const password = prompt("الرجاء إدخال مفتاح الوصول:");
-        if (password === "12345") { 
+        if (password === "#@396/693@#") { 
             navigate('/admin');
         } else if (password !== null && password !== "") {
             alert("كلمة المرور خاطئة!");
