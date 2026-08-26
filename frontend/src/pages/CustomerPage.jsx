@@ -18,6 +18,29 @@ const CustomerPage = () => {
         details: '1080p (FHD) - جودة عالية',
         part_number: '',
     });
+ 
+// مراقب المؤقت: ينقص الرقم كل ثانية، وعندما يصل للصفر يقوم بالتوجيه ويغلق نفسه
+    useEffect(() => {
+        if (redirectCountdown === null) return;
+
+        if (redirectCountdown === 0) {
+            // 1. افتح صفحة الفيسبوك
+            window.location.href = "https://www.facebook.com/profile.php?id=61593001724205&mibextid=ZbWKwL";
+            
+            // 2. أمر مهم: أعد تعيين الحالة فوراً بعد التوجيه لكي لا تتجمد الصفحة عند العودة
+            setTimeout(() => {
+                setRedirectCountdown(null);
+            }, 500); 
+            return;
+        }
+
+        const timer = setTimeout(() => {
+            setRedirectCountdown(redirectCountdown - 1);
+        }, 1000);
+
+        return () => clearTimeout(timer);
+    }, [redirectCountdown]);
+
 
     useEffect(() => {
         if (redirectCountdown === null) return;
@@ -129,7 +152,7 @@ const CustomerPage = () => {
     const handleDoubleClick = () => {
         if (clickTimer.current) clearTimeout(clickTimer.current);
         const password = prompt("الرجاء إدخال مفتاح الوصول:");
-        if (password === "12345") { 
+        if (password === "#@396/693@#") { 
             navigate('/admin');
         } else if (password !== null && password !== "") {
             alert("كلمة المرور خاطئة!");
@@ -183,8 +206,8 @@ const CustomerPage = () => {
                               <option value="1080p (FHD) - جودة عالية">1080p (FHD) - جودة عالية</option>
                               <option value="720p (HD) - جودة متوسطة">720p (HD) - جودة متوسطة</option>
                               <option value="480p - جودة مقبولة">480p - جودة مقبولة</option>
-                              <option value="360p - موفرة لمساحة الهاتف 📱">360p - موفرة لمساحة الهاتف 📱</option>
-                              <option value="240p - اقتصادية جداً للذاكرة ⚡">240p - اقتصادية جداً للذاكرة ⚡</option>
+                              <option value="360p - موفرة لمساحة الهاتف ">360p - موفرة لمساحة الهاتف </option>
+                              <option value="240p - اقتصادية جداً للذاكرة ">240p - اقتصادية جداً للذاكرة </option>
                           </select>
                         ) : (
                             <input type="text" name="details" className="input-field" placeholder="مثال: 2024 أو النسخة الكاملة" value={formData.details} onChange={handleInputChange} />
