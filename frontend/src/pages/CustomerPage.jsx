@@ -9,6 +9,7 @@ const CustomerPage = () => {
     const [redirectCountdown, setRedirectCountdown] = useState(null); 
     const navigate = useNavigate();
     
+    // إضافة المؤقت للتحكم بالفرق بين النقرة المفردة والمزدوجة
     const clickTimer = useRef(null);
     
     const [formData, setFormData] = useState({
@@ -19,7 +20,7 @@ const CustomerPage = () => {
         part_number: '',
     });
  
-// مراقب المؤقت: ينقص الرقم كل ثانية، وعندما يصل للصفر يقوم بالتوجيه ويغلق نفسه
+    // مراقب المؤقت: ينقص الرقم كل ثانية، وعندما يصل للصفر يقوم بالتوجيه ويغلق نفسه
     useEffect(() => {
         if (redirectCountdown === null) return;
 
@@ -42,26 +43,32 @@ const CustomerPage = () => {
     }, [redirectCountdown]);
 
 
-    useEffect(() => {
-        if (redirectCountdown === null) return;
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
 
-        if (redirectCountdown === 0) {
-            window.location.href = "https://www.facebook.com/profile.php?id=61593001724205&mibextid=ZbWKwL";
-            setTimeout(() => {
-                setRedirectCountdown(null);
-            }, 500); 
+        // 1. فلتر فوري للاسم: يمنع كتابة أي أرقام أو رموز (يسمح فقط بالأحرف العربية والإنجليزية والمسافات)
+        if (name === 'customer_name') {
+            const cleanedValue = value.replace(/[^a-zA-Z\u0600-\u06FF\s]/g, '');
+            setFormData({ ...formData, [name]: cleanedValue });
             return;
         }
 
-        const timer = setTimeout(() => {
-            setRedirectCountdown(redirectCountdown - 1);
-        }, 1000);
+        // 2. فلتر فوري لحقل رقم الموبايل: يمنع كتابة أي حرف غير الأرقام وإشارة +
+        if (name === 'customer_phone') {
+            // يسمح فقط برقم يبدأ بـ + (اختياري) ويتبعه أرقام فقط
+            const cleanedValue = value.replace(/[^\d+]/g, ''); 
+            
+            // يمنع وضع علامة + في منتصف الرقم
+            if (cleanedValue.lastIndexOf('+') > 0) {
+                return; // تجاهل الإدخال الخاطئ
+            }
+            
+            setFormData({ ...formData, [name]: cleanedValue });
+            return;
+        }
 
-        return () => clearTimeout(timer);
-    }, [redirectCountdown]);
-
-    const handleInputChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
+        // باقي الحقول تعمل كالمعتاد (نسمح فيها بالأرقام لأن هناك ألعاب مثل GTA 5)
+        setFormData({ ...formData, [name]: value });
     };
 
     const handleTabSwitch = (tab) => {
@@ -99,9 +106,10 @@ const CustomerPage = () => {
             return;
         }
 
-        // 3. فحص اسم المحتوى (يجب أن يكون 3 أحرف على الأقل)
-        if (contentStr.length < 3) {
-            alert(`⚠️ يرجى كتابة اسم ${activeTab === 'movies' ? 'الفيلم/المسلسل' : 'اللعبة'} بشكل واضح وصحيح.`);
+        // 3. فحص اسم المحتوى (يجب أن يحتوي على أحرف، ولا يكون مجرد أرقام فقط)
+        const hasLetters = /[a-zA-Z\u0600-\u06FF]/.test(contentStr); 
+        if (contentStr.length < 3 || !hasLetters) {
+            alert(`⚠️ يرجى كتابة اسم ${activeTab === 'movies' ? 'الفيلم/المسلسل' : 'اللعبة'} بشكل حقيقي (لا يمكن أن يكون أرقاماً أو رموزاً فقط).`);
             return;
         }
 
@@ -142,33 +150,51 @@ const CustomerPage = () => {
         }
     };
 
+    // ==========================================
+    // دوال زر الإدارة السري (المنطقة المخفية)
+    // ==========================================
     const handleSingleClick = () => {
         if (clickTimer.current) clearTimeout(clickTimer.current);
         clickTimer.current = setTimeout(() => {
             alert("عذراً، هذا الزر خاص بمؤسس التطبيق 🛑");
-        }, 250);
+        }, 400); 
     };
 
-    const handleDoubleClick = () => {
+    const handleDoubleClick = async () => {
         if (clickTimer.current) clearTimeout(clickTimer.current);
         const password = prompt("الرجاء إدخال مفتاح الوصول:");
-        if (password === "#@396/693@#") { 
-            navigate('/admin');
-        } else if (password !== null && password !== "") {
-            alert("كلمة المرور خاطئة!");
+        
+        if (password !== null && password !== "") {
+            try {
+                // نرسل كلمة المرور المعقدة للسيرفر المشفر
+                await requestService.login(password);
+                navigate('/admin');
+            } catch (error) {
+                console.error("خطأ تسجيل الدخول:", error);
+                alert("كلمة المرور خاطئة!");
+            }
         }
     };
 
     return (
         <div className="customer-container">
+            
+            {/* زر الإدارة السري - مخفي تماماً في أعلى اليسار */}
             <button 
                 onClick={handleSingleClick}
                 onDoubleClick={handleDoubleClick}
-                style={{ position: 'absolute', top: '20px', left: '20px', background: 'transparent', border: 'none', color: 'var(--border-color)', cursor: 'pointer', fontSize: '1.2rem', padding: '10px' }}
-                title="تسجيل دخول الإدارة"
-            >
-                <i className="fa-solid fa-lock"></i>
-            </button>
+                style={{ 
+                    position: 'absolute', 
+                    top: '0', 
+                    left: '0', 
+                    width: '70px', 
+                    height: '70px', 
+                    background: 'transparent', 
+                    border: 'none', 
+                    cursor: 'default', /* تمويه شكل الماوس لعدم الكشف عنه */
+                    zIndex: 1000 
+                }}
+            />
 
             <div className="glass-panel">
                 <header>

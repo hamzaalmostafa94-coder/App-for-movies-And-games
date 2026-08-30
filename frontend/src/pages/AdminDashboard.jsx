@@ -39,14 +39,13 @@ const AdminDashboard = () => {
         // تجهيز النصوص الإضافية (تظهر فقط إذا كان العميل قد أدخلها)
         const partText = request.part_number ? `الجزء/الموسم: ${request.part_number}\n` : '';
 
-        const message = `مرحباً ${request.customer_name}،\n\n` +
-                        `بخصوص طلبك رقم: #${request.id}\n` +
-                        `نوع الطلب: ${request.content_type}\n` +
-                        `اسم المحتوى: ${request.content_name}\n` +
-                        partText +
-                        `التفاصيل: ${request.details || 'لا يوجد'}\n` +
-                        imageText + `\n` +
-                        `حالة الطلب الحالية: *${statusArabic}* 🚀`;
+       const message = `مرحباً ${request.customer_name}،\n\n` +
+                `بخصوص طلبك رقم: #${request.id}\n` +
+                `نوع الطلب: ${request.content_type}\n` +
+                `اسم المحتوى: ${request.content_name}\n` +
+                partText +
+                `التفاصيل: ${request.details || 'لا يوجد'}\n\n` +
+                `حالة الطلب الحالية: *${statusArabic}* `;
 
         const encodedMessage = encodeURIComponent(message);
         
@@ -166,7 +165,7 @@ const AdminDashboard = () => {
                                 <th>العميل</th>
                                 <th>النوع</th>
                                 <th>اسم المحتوى</th>
-                                <th>الموسم/الجزء</th> {/* تمت إضافة العامود */}
+                                <th>الموسم/الجزء</th>
                                 <th>التفاصيل</th>
                                 <th>الحالة</th>
                                 <th>الإجراءات</th>

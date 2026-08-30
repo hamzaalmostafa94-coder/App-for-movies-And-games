@@ -10,7 +10,7 @@ from sqlalchemy import create_engine, Column, Integer, String, DateTime
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session
 from jose import JWTError, jwt
-from passlib.context import CryptContext
+import bcrypt
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
@@ -18,17 +18,15 @@ from slowapi.errors import RateLimitExceeded
 # ==========================================
 # 1. الإعدادات الأمنية (Security Settings)
 # ==========================================
-SECRET_KEY = "Lord_System_Ultra_Secure_Key_2026_!@#" # مفتاح تشفير معقد
+SECRET_KEY = "Lord_System_Ultra_Secure_Key_2026_!@#" 
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 # الجلسة تنتهي بعد 24 ساعة
+ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 
 
-# كلمة السر المشفرة للأدمن (الكلمة الأصلية هي: 123456)
-# استخدمنا Hash لكي لا تكون مكشوفة في الكود
-ADMIN_PASSWORD_HASH = "$2b$12$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjIQqiRQYq" 
+# سنجعل السيرفر يولد التشفير لكلمة المرور المعقدة تلقائياً
+ADMIN_PASSWORD_HASH = bcrypt.hashpw("#@396/693@#".encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/login")
-
+limiter = Limiter(key_func=get_remote_address)
 # حماية من هجمات الإغراق (Rate Limiter)
 limiter = Limiter(key_func=get_remote_address)
 
@@ -91,8 +89,14 @@ app.add_middleware(
 # ==========================================
 # 4. دوال الحماية والمصادقة
 # ==========================================
-def verify_password(plain_password, hashed_password):
-    return pwd_context.verify(plain_password, hashed_password)
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    try:
+        return bcrypt.checkpw(
+            plain_password.encode('utf-8'), 
+            hashed_password.encode('utf-8')
+        )
+    except Exception:
+        return False
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     to_encode = data.copy()
@@ -147,14 +151,13 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
 # رابط استقبال الطلبات من العميل (محمي من الإغراق: 5 طلبات في الدقيقة كحد أقصى)
 @app.post("/api/requests/", response_model=RequestResponse)
 @limiter.limit("5/minute")
-def create_request(request_data: RequestCreate, req: Request, db: Session = Depends(get_db)):
+def create_request(request_data: RequestCreate, request: Request, db: Session = Depends(get_db)):
     data_dict = request_data.model_dump() if hasattr(request_data, 'model_dump') else request_data.dict()
     db_request = DBRequest(**data_dict)
     db.add(db_request)
     db.commit()
     db.refresh(db_request)
     return db_request
-
 # روابط الأدمن (محمية بالكامل ولا تفتح إلا بمفتاح JWT)
 @app.get("/api/requests/", response_model=List[RequestResponse])
 def read_requests(skip: int = 0, limit: int = 100, db: Session = Depends(get_db), current_admin: str = Depends(get_current_admin)):
