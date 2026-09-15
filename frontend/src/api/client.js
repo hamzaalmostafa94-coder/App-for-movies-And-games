@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:8000"; // ضع رابط سيرفرك هنا
+const API_URL = "https://app-for-movies-and-games.onrender.com"; // ضع رابط سيرفرك هنا
 
 export const requestService = {
     // 1. دالة تسجيل الدخول للحصول على التوكن (بطاقة VIP)
